@@ -3,6 +3,7 @@
 - [简介](README.md)
 - [函数](function/README.md)
 
+  - [高阶函数](function/high_order.md)
   - [lambda](function/lambda.md)
   - [curry 柯里化](function/curry.md)
   - [partial 偏函数](function/partial.md)
@@ -12,12 +13,11 @@
 
 - [Functor](functor/README.md)
 
-  - [Identity](functors/identity.md)
-  - [Maybe](functors/maybe.md)
-  - [Either](functors/either.md)
-  - [IO](functors/io.md)
-  - [Task](functors/task.md)
+  - [Identity](functor/identity.md)
+  - [Maybe](functor/maybe.md)
+  - [Either](functor/either.md)
+  - [IO](functor/io.md)
+  - [Task](functor/task.md)
 
-- 栗子
-
-  - [一个小编译器](examples/sbn.md)
+- [函数响应式编程](frp/README.md)
+  - [Observable](frp/observable.md)

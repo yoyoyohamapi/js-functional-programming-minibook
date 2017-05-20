@@ -6,28 +6,28 @@
 
 ```javascript
 const info = {
-    year: '2016',
-    students: [{
-        name: '张三',
-        id: 1,
-        math: 90,
-        english: 67
-    }, {
-        name: '李四',
-        id: 2,
-        math: 52,
-        english: 80
-    }, {
-        name: '王五',
-        id: 3,
-        math: 47,
-        english: 91
-    }, {
-        name: '赵六',
-        id: 4,
-        math: 88,
-        english: 87
-    }]
+  year: '2016',
+  students: [{
+      name: '张三',
+      id: 1,
+      math: 90,
+      english: 67
+  }, {
+      name: '李四',
+      id: 2,
+      math: 52,
+      english: 80
+  }, {
+      name: '王五',
+      id: 3,
+      math: 47,
+      english: 91
+  }, {
+      name: '赵六',
+      id: 4,
+      math: 88,
+      english: 87
+  }]
 };
 ```
 
@@ -37,8 +37,8 @@ const info = {
 const _ = require('underscore');
 
 const mathNotPass = info => {
-    const notPassStus = _.filter(_.property('students')(info), student => student.math >= 60);
-    return _.map(notPassStus, _.property('id'));
+  const notPassStus = _.filter(_.property('students')(info), student => student.math >= 60);
+  return _.map(notPassStus, _.property('id'));
 }
 
 mathNotPass(info); // => [1, 4]
@@ -50,11 +50,11 @@ mathNotPass(info); // => [1, 4]
 const _ = require('underscore');
 
 const mathNotPass = info =>
-    _.chain(info)
-    .result('students')
-    .filter(student => student.math >= 60)
-    .map(_.property('id'))
-    .value();
+  _.chain(info)
+  .result('students')
+  .filter(student => student.math >= 60)
+  .map(_.property('id'))
+  .value();
 
 mathNotPass(info); // => [1, 4]
 ```
@@ -65,9 +65,9 @@ mathNotPass(info); // => [1, 4]
 const _ = require('underscore');
 
 const mathNotPass = _.compose(
-    students => _.map(students, _.property('id')),
-    students => _.filter(students, student => student.math >= 60),
-    _.property('students')
+  students => _.map(students, _.property('id')),
+  students => _.filter(students, student => student.math >= 60),
+  _.property('students')
 );
 
 mathNotPass(info); // => [1, 4]
@@ -93,9 +93,9 @@ ramda 库即采用了 Pointfree 风格。利用 ramda，我们统计不及格学
 const R = require('ramda');
 
 const mathNotPass = R.compose(
-    R.map(R.prop('id')),
-    R.filter(student => student.math >= 60),
-    R.prop('students')
+  R.map(R.prop('id')),
+  R.filter(student => student.math >= 60),
+  R.prop('students')
 );
 
 mathNotPass(info); // => [1, 4]
