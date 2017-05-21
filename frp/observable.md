@@ -78,11 +78,11 @@ Observable 能够发出三种类型的数据：
 
 ## 简单的 Observable 实现
 
-假定我们有一个数组数据源 `[1, 2, 3, 4, 5]`，我们将它设计成为 Observable
+假定我们有一个数组数据源 `[1, 2, 3]`，我们将它设计成为 Observable：
 
 ```js
 const observable = observer => {
-  [1, 2, 3, 4, 5].forEach(e => observer.next(e));
+  [1, 2, 3].forEach(e => observer.next(e));
   observer.complete();
 };
 
@@ -97,8 +97,6 @@ observable({
 // 1
 // 2
 // 3
-// 4
-// 5
 // complete
 ```
 
@@ -107,7 +105,7 @@ observable({
 ```js
 const observable = {
   subscribe: observer => {
-    [1, 2, 3, 4, 5].forEach(e => observer.next(e));
+    [1, 2, 3].forEach(e => observer.next(e));
     observer.complete();
   }
 };
@@ -130,7 +128,7 @@ const clickObservable = createObservable(
 
 const arrayObservable = createObservable(
   observer => {
-    [1, 2, 3, 4, 5].forEach(observer.next);
+    [1, 2, 3].forEach(observer.next);
     observer.complete();
   }
 );
@@ -138,7 +136,11 @@ const arrayObservable = createObservable(
 
 ## operator
 
-假设我们有一个 Observable：`Observable([1, 2, 3, 4, 5])`，我们在观察它的时候，想要让其中的数都增大 2，并且获得一个新的 Observable：`Observable([2, 4, 6, 8, 10])`。如何由一个 Observable 生成另一个 Observable 呢，需要引入 operator（运算符），下面我们先创建一个 map operator：
+假设我们有一个 Observable：`Observable([1, 2, 3])`，我们在观察它的时候，想要让其中的数都翻 10 倍，并且获得一个新的 Observable：`Observable([10, 20, 30])`。如何由一个 Observable 生成另一个 Observable 呢，需要引入 operator（运算符），下面我们先创建一个 map operator：
+
+<div style="text-align:center">
+  <img src="./observable_map.png" width="500px"></img>
+</div>
 
 ```js
 const map = function (transformFn) {
@@ -168,17 +170,15 @@ const createObservable = subscribe => ({
 测试一下：
 
 ```js
-const double = x => x * 2;
+const double = x => 10 * x;
 arrayObservable.map(double).subscribe({
   next: value => console.log(value)
 });
 
 // 程序输出:
-// 2
-// 4
-// 6
-// 8
 // 10
+// 20
+// 30
 ```
 
 运算符能帮我们不断从一个 Observable 创建另一个 Observable，也就是不断从一个流获得新的流。不只 map，我们还可以创建 filter，reduce 等等的 operator。

@@ -21,3 +21,4 @@
 
 - [函数响应式编程](frp/README.md)
   - [Observable](frp/observable.md)
+  - [Subject](frp/subject.md)
