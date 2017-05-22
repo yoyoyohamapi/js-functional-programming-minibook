@@ -1,4 +1,4 @@
-# partial application 偏函数应用
+# 偏函数应用
 
 上一节中，我们学习了 curry 化技术，curry 帮助我们逐个对函数进行参数填充。在函数式编程中，还有一个与 curry 非常类似的技术，叫做 partial application，偏函数应用。
 
