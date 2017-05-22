@@ -4,10 +4,10 @@
 - [函数](function/README.md)
 
   - [高阶函数](function/high_order.md)
-  - [lambda](function/lambda.md)
-  - [curry 柯里化](function/curry.md)
-  - [partial application 偏函数应用](function/partial.md)
-  - [compose 函数组合](function/compose.md)
+  - [表达式](function/lambda.md)
+  - [柯里化](function/curry.md)
+  - [偏函数应用](function/partial.md)
+  - [函数组合](function/compose.md)
   - [Pointfree](function/pointfree.md)
   - [Hindley-Milner 注释](function/hindley_milner.md)
 
