@@ -3,8 +3,8 @@
 - [简介](README.md)
 - [函数](function/README.md)
 
+  - [lambda 表达式](function/lambda.md)
   - [高阶函数](function/high_order.md)
-  - [表达式](function/lambda.md)
   - [柯里化](function/curry.md)
   - [偏函数应用](function/partial.md)
   - [函数组合](function/compose.md)
