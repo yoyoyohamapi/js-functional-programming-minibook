@@ -85,9 +85,9 @@ Pointfree 则是 Pointful 风格的对立。在 [Mostly Adequate Guide](https://
 
 > Pointfree style means never having to say your data
 
-亦即，Pointfree 风格下的函数，永远只关注处理数据的方式。Pointfree 更贴近限时，我们把数据的处理方式看做流水线上的设备，他们是很少变动的，而流水线上的数据才是易变的。
+亦即，Pointfree 风格下的函数，永远只关注处理数据的方式。Pointfree 更贴近现实，我们把数据的处理方式看做流水线上的设备，他们是很少变动的，而流水线上的数据才是易变的。
 
-ramda 库即采用了 Pointfree 风格。利用 ramda，我们统计不及格学生的学号：
+ramda 即采用了 Pointfree 风格。利用 ramda，我们统计不及格学生的学号：
 
 ```js
 const R = require('ramda');
