@@ -128,11 +128,9 @@ const curry = (f, arr = []) => {
            arr[i] = args[j++];
        }
     }
-    if (j < args.length) {
-       combine = [...arr, ...args.slice(j)];
-    }
-    const validArgs = arr.filter(arg => arg !== _);
-    return validArgs.length >= f.length ? f(...arr) : curry(f, arr);
+    const combined = j < args.length ? [...arr, ...args.slice(j)] : [...arr];
+    const validArgs = combined.filter(arg => arg !== _);
+    return validArgs.length >= f.length ? f(...combined) : curry(f, combined);
   };
 };
 ```
