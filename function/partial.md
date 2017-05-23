@@ -55,6 +55,4 @@ parseInt2('10'); // => 2
 ## 参考资料
 
 - [Curry or Partial Application?](https://medium.com/javascript-scene/curry-or-partial-application-8150044c78b8)
-- [What is the difference between currying and partial application?
-
-](http://stackoverflow.com/questions/218025/what-is-the-difference-between-currying-and-partial-application)
+- [What is the difference between currying and partial application?](http://stackoverflow.com/questions/218025/what-is-the-difference-between-currying-and-partial-application)
