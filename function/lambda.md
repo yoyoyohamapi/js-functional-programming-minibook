@@ -239,19 +239,25 @@ const plus = m => n => f => x => m(f)(n(f)(x));
 ```js
 const multiple = m => n => f => m(n(f));
 ```
-
 ### 自减
 
-**自减** 运算 `n = n - 1`，其实现比较复杂，为了方便理解，我们先定义一个转移表达式：
-
+**自减** 运算 `n = n - 1` 的实现比较复杂，为了方便理解，我们先定义一个转移表达式：
 ```js
 const trans = p => makePair(p(second))(succ(p(second)));
 ```
+其传入一个 `pair` 函数，返回一个新的 `pair` 函数，新函数中第一个参数值为原函数的第二个参数值，第二个参数值为原函数的第二个参数自增后的值，比如：
+```js
+trans(makePair(zero)(zero)) => makePair(zero)(one);
+```
+从上不难发现转移表达式每次执行将当前状态转移到了前驱状态然后将自增后的状态转移到当前状态，用公式可以表示为：
 
-其传入一个 `pair` 函数，返回一个新的 `pair` 函数，其第一个参数为原来 `pair` 函数的第二个参数，第二个参数为原来 `pair` 函数的第二个参数自增后的值。
+$$
 
-于是，从 `n` 自减到 `n-1` 可以看作是由初始状态对 `(zero)(zero)` 转移 n 次后所返回的 pair 函数的第一个参数值：
+(lastNumber, currentNumber) => (currentNumber, SuccNumber)
 
+$$
+
+于是可以推出由初始状态 `(zero, zero)` 转移n次后，其前驱状态为 `n-1` ，所以 **自减** 运算可以表示为：
 ```js
 const pred = n => (n(trans)(makePair(zero)(zero)))(first);
 ```
