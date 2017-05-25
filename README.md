@@ -6,7 +6,7 @@
   - [x] 柯里化
   - [x] 函数的偏应用
   - [ ] 函数组合
-  - [ ] pointfree
+  - [x] Pointfree
   - [ ] 纯函数与副作用
   - [ ] Hindley-Milner 注释
 
