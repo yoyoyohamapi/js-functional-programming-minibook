@@ -343,3 +343,4 @@ nand(FALSE)(TRUE) === TRUE;  // => true
 - [JAVASCRIPT AND THE LAMBDA CALCULUS, PT. 1](http://fgshprd.github.io/2014/04/12/Javascript_and_the_Lambda_Calculus_pt1.html)
 - [JAVASCRIPT AND THE LAMBDA CALCULUS, PT. 2](http://fgshprd.github.io/2014/05/03/Javascript_and_the_Lambda_Calculus_pt2.html)
 - [Wiki--λ演算](https://zh.wikipedia.org/wiki/%CE%9B%E6%BC%94%E7%AE%97)
+- [Lambda Calculus: Subtraction is hard](http://gettingsharper.de/2012/08/30/lambda-calculus-subtraction-is-hard)
