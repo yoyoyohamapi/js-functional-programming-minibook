@@ -74,8 +74,6 @@ define y 3
 (λx.x+2) 3 == (3 + 2) == 5
 ```
 
-其一般形式为：
-
 ```
 ((λV.E) E') == E [V:=E'] if free(E') subset free(E[V:E'])
 ```
@@ -121,6 +119,17 @@ define y 3
 ```
 
 显然，`3 + 2 + 3` 与 `x + 2 + 3`是完全不同的结果。
+
+## η-变换
+**η-变换** 表示可以将等价的两个λ表达式进行替换，等价指的是对于所有的输入两个表达式都会输出相同的结果。比如：
+```
+λx.f x == f
+```
+其一般形式为：
+```
+M == λx. M x if x notsubset free(M)
+```
+后面的变换条件表示x不是M的自由变量。
 
 ## 基本函数
 
@@ -388,10 +397,112 @@ nand(TRUE)(FALSE) === TRUE;  // => true
 nand(FALSE)(TRUE) === TRUE;  // => true
 ```
 
+## 递归运算
+递归运算在命令式语言里很容易实现，比如实现一个累乘运算 `factorial` ，其递归函数可以定义为：
+```js
+function factorial (n) {
+  if (n == 0) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+}
+```
+这个函数非常简单且被我们所熟知，然而λ演算中，没有命名的概念，函数都是匿名函数，所以我们无法通过上述方式进行递归运算。
+为了帮组匿名函数实现递归运算，著名数学家Haskell B. Curry提出了**y-combinator**函数，由这个函数我们可以将普通函数转换为可递归的函数。
+要理解该函数，我们需要一步一步的进行推导，下面我按自己的学习过程整理出一种比较容易理解的步骤。
+首先，我们将y-combinator函数设为Y，接着我们将引入不动点(fix-point)的概念，不动点就是满足如下公式的函数：
+$$
+fix  = f(fix)
+$$
+其高阶形式为：
+$$
+f(g(fix)) = g(fix)
+$$
+然后我们将fix替换为Y并不断展开,得到：
+$$
+Y(f) => f(Y(f)) => f(f(Y(f))) => ... => { f ^ n }(Y(f))
+$$
+显然，f在Y的帮助下不断调用自身，成为了一个递归函数。最后我们用js语言来描述Y函数:
+
+```js
+function Y (f) {
+  return f(Y(f));
+}
+```
+然而你肯定发现了一个问题，这个递归是无限的。凡是采取急性求值(Eager Evaluation)策略的语言，都会按上面公式所展现的那样的顺序，在调用` f `前先求取 `Y(f)` 的值，然后不断进行下去陷入无限递归，js就是这样的语言。但正规的函数式语言如Haskell一般采取的是惰性求值(Lazy Evaluation)的策略，这两者的区别在于求值时机的不同，在惰性求值中执行 `f(Y(f))` 时，不会立即求取 `Y(f)` 的值，而是先调用 `f` ，然后在 `f` 内部使用到 `Y(f)` 的时候才计算 `Y(f)` 的值。所以不会造成死循环，但同时也不能直接使 `f` 成为递归函数，因为其内部如果没有使用到参数那么 `Y(f)` 将永远不会被执行。
+但通过对 `f` 进行定制，我们可以让递归在惰性求值的语言中进行下去。针对不同的递归函数其定制方式有所区别，但核心思想就是让 `f` 成为一个高阶函数其传入一个函数参数并返回一个满足递归要素（以传入函数作递推的递推公式和终止条件）的新函数。下面我们以 `factorial` 来举例其对应的 `f` 函数为：
+```js
+function f (factorial) {
+  return function (n) {
+    if (n === 0) return 1;
+    else {
+      return n * factorial(n-1);
+    }
+  }
+}
+```
+假设js为惰性求值，那么求解Y(f)(4)将有下面的推导过程：
+```
+Y(f)(4)
+=> f(Y(f))(4)
+=> (n => n * (Y(f)(n-1)))(4)
+=> 4 * (Y(f)(3))
+=> 4 * 3 * (Y(f)(2))
+=> 4 * 3 * 2 * (Y(f)(1))
+=> 4 * 3 * 2 * 1 * (Y(f)(0))
+=> 4 * 3 * 2 * 1 * 1
+=> 24
+```
+可以看到，`Y` 使 `f` 完美实现了递归运算，但这是建立在惰性求值的基础之上，实际中js是急性求值语言所以我们还需要对 `Y` 进行改造，改造的目的是不立即对 `Y(f)` 进行求值，大家想必都知道让js延迟函数执行的办法，那就是在函数外面再包裹一层函数，那么如何包裹能让原函数的意图不发生改变呢，这时我们就要引入之前提过的η-变换，对函数进行等价变换，根据η-变换公式我们有：
+```
+M == λx.M x
+=> Y(f) == x => Y(f)(x)
+```
+因此我们得出Y为：
+```js
+function Y (f) {
+  return f(x => Y(f)(x));
+}
+```
+此时，我们要做的最后一步就是将 `Y` 匿名化。那么如何完成这样的变化呢，这需要一点点灵感，我们考虑如果能将 `Y` 以参数的形式传递进来并进行自调用，那么就能做到匿名化，但是我们的 `f` 是用来传递待递归函数，所以我们要将 `Y` 变为高阶函数，让它同时也能传递自身，最后代码就变成了：
+```js
+function (f) {
+  return (function (y) {
+    return f(x => y(y)(x));
+  })(function (y) {
+    return f(x => y(y)(x));
+  });
+}
+```
+Es6的形式为：
+```js
+f => (y => f(x => y(y)(x)))(y => f(x => y(y)(x)))
+```
+急性求值的λ演算形式为：
+```
+λf.(λy.f(λx.y y x))(λy.f(λx.y y x))
+```
+惰性求值的λ演算形式为：
+```
+λf.(λy.f(y y))(λy.f(y y))
+```
+自此y-combinator的表达式就推导完毕了。
+最后，我们给出完整的利用λ演算实现的 `factorial` 递归函数代码：
+```js
+const factorial = (r => n => n === 0 ? 1 : n * r(n - 1))
+                => (y => f(x => y(y)(x)))(y => f(x => y(y)(x)));
+factorial(4); // => 24
+```
 ## 参考资料
 
+- [Wiki -- Lambda calculus](https://en.wikipedia.org/wiki/Lambda_calculus)
 - [Lambda Calculus in JavaScript — Part 1](https://medium.com/functional-javascript/lambda-calculus-in-javascript-part-1-28ff63824d4d)
 - [JAVASCRIPT AND THE LAMBDA CALCULUS, PT. 1](http://fgshprd.github.io/2014/04/12/Javascript_and_the_Lambda_Calculus_pt1.html)
 - [JAVASCRIPT AND THE LAMBDA CALCULUS, PT. 2](http://fgshprd.github.io/2014/05/03/Javascript_and_the_Lambda_Calculus_pt2.html)
 - [Wiki--λ演算](https://zh.wikipedia.org/wiki/%CE%9B%E6%BC%94%E7%AE%97)
 - [Lambda Calculus: Subtraction is hard](http://gettingsharper.de/2012/08/30/lambda-calculus-subtraction-is-hard)
+- [lambda calculus:Y-combinator
+](http://staynoob.cn/post/2017/03/lambda-calculus-y-combinator)
+- [Wiki -- Fixed-point combinator
+](https://en.wikipedia.org/wiki/Fixed-point_combinator)
