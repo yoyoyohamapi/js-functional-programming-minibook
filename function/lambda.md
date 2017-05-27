@@ -74,8 +74,6 @@ define y 3
 (λx.x+2) 3 == (3 + 2) == 5
 ```
 
-其一般形式为：
-
 ```
 ((λV.E) E') == E [V:=E'] if free(E') subset free(E[V:E'])
 ```
@@ -121,6 +119,17 @@ define y 3
 ```
 
 显然，`3 + 2 + 3` 与 `x + 2 + 3`是完全不同的结果。
+
+## η-变换
+**η-变换** 表示可以将等价的两个λ表达式进行替换，等价指的是对于所有的输入两个表达式都会输出相同的结果。比如：
+```
+λx.f x == f
+```
+其一般形式为：
+```
+M == λx. M x if x notsubset free(M)
+```
+后面的变换条件表示x不是M的自由变量。
 
 ## 基本函数
 
@@ -388,10 +397,159 @@ nand(TRUE)(FALSE) === TRUE;  // => true
 nand(FALSE)(TRUE) === TRUE;  // => true
 ```
 
+## 递归运算
+
+递归运算在命令式语言里很容易实现，比如实现一个累乘运算 `factorial` ，其递归函数可以定义为：
+
+```js
+function factorial (n) {
+  if (n == 0) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+}
+```
+
+这个函数非常简单且被我们所熟知，它实现的递归其核心在于自身调用自身，且函数名可以标识自身。
+然而在λ演算中，没有命名的概念，函数都是匿名函数，无法通过函数名调用自身，所以也就无法通过上述方式进行递归运算。
+为了帮助匿名函数实现递归运算，著名数学家 Haskell B. Curry 提出了 **y-combinator** 函数，由这个函数我们可以将普通函数转换为可递归的函数。
+要理解该函数，我们需要一步一步的进行推导。首先，我们将引入不动点（fix-point）的概念，所谓不动点就是满足如下公式的函数：
+
+$$
+fix = f(fix)
+$$
+
+其高阶形式为：
+
+$$
+fix \space f = f(fix \space f) \space \space  for \space all \space f
+$$
+
+此时的 `fix` 函数被称为 **fixed-point-combinator**，y-combinator 就是属于 fixed-point_combinator 中的一种实现，所以它满足：
+
+$$
+Y(f) = f(Y(f)) = f(f(Y(f))) = ... = { f ^ n }(Y(f))
+$$
+
+显然，函数 `f` 在 `Y` 的帮助下不断调用自身，成为了一个递归函数。最后我们用 JavaScript 语言来描述Y函数:
+
+```js
+function Y (f) {
+  return f(Y(f));
+}
+```
+
+然而这段代码在实际执行中出现了一个很严重问题，这个递归会无限进行下去。这是由于  JavaScript 属于急性求值语言，凡是采取急性求值（Eager Evaluation）策略的语言，都会按上面公式所展现的那样的顺序，在调用` f `前先求取 `Y(f)` 的值，然后不断进行下去陷入无限递归。
+在正规的函数式语言如 Haskell 语言中一般采取的是惰性求值（Lazy Evaluation）的策略，这两者的区别在于求值时机的不同，在惰性求值中执行 `f(Y(f))` 时，不会立即求取 `Y(f)` 的值，而是先调用 `f` ，然后在 `f` 内部使用到 `Y(f)` 的时候才计算 `Y(f)` 的值。所以不会造成死循环，但同时也不能保证 `f` 递归执行，因为其内部如果没有执行参数的语句那么 `Y(f)` 将永远不会被执行。
+但通过对 `f` 进行定制，我们可以让递归在惰性求值的语言中顺利进行。针对不同的递归函数其定制方式有所区别，但核心思想就是让 `f` 成为一个高阶函数其传入一个用以递推的函数参数并返回一个满足递归要素（递推公式和终止条件）的新函数。下面我们以 `factorial` 来举例其对应的 `f` 函数为：
+
+```js
+function f (factorial) {
+  return function (n) {
+    if (n === 0) return 1;
+    else {
+      return n * factorial(n-1);
+    }
+  }
+}
+```
+
+如果 JavaScript 为惰性求值语言，那么求解 `Y(f)(4)` 将会有如下推导过程：
+
+```
+Y(f)(4)
+=> f(Y(f))(4)
+=> (n => n * (Y(f)(n-1)))(4)
+=> 4 * (Y(f)(3))
+=> 4 * 3 * (Y(f)(2))
+=> 4 * 3 * 2 * (Y(f)(1))
+=> 4 * 3 * 2 * 1 * (Y(f)(0))
+=> 4 * 3 * 2 * 1 * 1
+=> 24
+```
+
+可以看到，`Y` 顺利使 `f` 实现了递归运算，但这是建立在惰性求值的基础之上，实际中我们知道 JavaScript 是急性求值语言， 所以我们还需要对 `Y` 进行改造。
+改造的目的是让 JavaScript 不立即对 `Y(f)` 进行求值，而让 JavaScript 延迟代码执行的办法，就是在用匿名函数将要执行代码包裹起来，比如下面这段代码：
+
+```js
+function log () {
+  console.log('我被执行了');
+}
+log(); // => 我被执行了
+```
+
+如果想不立即执行这段打印代码，我们可以这这样做：
+
+```js
+function delayLog () {
+  return function () {
+    console.log('我被执行了');
+  }
+}
+var log = delayLog(); // => [Function]
+log(); // => 我被执行了
+```
+
+那么如何包裹能让原函数的意图不发生改变呢，这时我们就要引入之前提过的 η-变换，对函数进行等价变换，根据 η-变换 公式我们有：
+
+```
+M == λx.M x => Y(f) == x => Y(f)(x)
+```
+因此我们得出 `Y` 为：
+```js
+function Y (f) {
+  return f(x => Y(f)(x));
+}
+```
+
+此时，我们要做的最后一步就是将 `Y` 匿名化。那么如何完成这样的变化呢，这需要一点点灵感，我们考虑如果能将 `Y` 以参数的形式传递进来并进行自调用，那么就能做到匿名化，但是我们的 `f` 是用来传递待递归函数，所以我们要将 `Y` 变为高阶函数，让它同时也能传递自身，最后代码就变成了：
+
+```js
+var Y = function (f) {
+  return (function (y) {
+    return f(x => y(y)(x));
+  })(function (y) {
+    return f(x => y(y)(x));
+  });
+}
+```
+
+ES6 的形式为：
+
+```js
+const Y = f => (y => f(x => y(y)(x)))(y => f(x => y(y)(x)));
+```
+
+急性求值的 λ 演算形式为：
+
+```
+Y = λf.(λy.f(λx.y y x))(λy.f(λx.y y x))
+```
+
+惰性求值的 λ 演算形式为：
+
+```
+Y = λf.(λy.f(y y))(λy.f(y y))
+```
+
+自此 y-combinator 的表达式就推导完毕了。
+最后，我们利用 y-combinator 实现 `factorial` 递归函数的代码：
+
+```js
+const factorial = Y(r => n => n === 0 ? 1 : n * r(n - 1));
+factorial(4); // => 24
+```
+
 ## 参考资料
 
+- [Wiki -- Lambda calculus](https://en.wikipedia.org/wiki/Lambda_calculus)
 - [Lambda Calculus in JavaScript — Part 1](https://medium.com/functional-javascript/lambda-calculus-in-javascript-part-1-28ff63824d4d)
 - [JAVASCRIPT AND THE LAMBDA CALCULUS, PT. 1](http://fgshprd.github.io/2014/04/12/Javascript_and_the_Lambda_Calculus_pt1.html)
 - [JAVASCRIPT AND THE LAMBDA CALCULUS, PT. 2](http://fgshprd.github.io/2014/05/03/Javascript_and_the_Lambda_Calculus_pt2.html)
 - [Wiki--λ演算](https://zh.wikipedia.org/wiki/%CE%9B%E6%BC%94%E7%AE%97)
 - [Lambda Calculus: Subtraction is hard](http://gettingsharper.de/2012/08/30/lambda-calculus-subtraction-is-hard)
+- [lambda calculus:Y-combinator
+](http://staynoob.cn/post/2017/03/lambda-calculus-y-combinator)
+- [Wiki -- Fixed-point combinator
+](https://en.wikipedia.org/wiki/Fixed-point_combinator)
