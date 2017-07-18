@@ -40,6 +40,12 @@ const ages = persons.map(getAge); // => [18, 24, 33]
   <img src="./curry_sc30.jpg" width="350"></img>
 </div>
 
+但是，Curry 化的名称来源还是在于 Haskell Curry 先生对于该技术的大力发展。
+
+<div style="text-align:center">
+  <img src="./HaskellCurry.jpg" width="200"></img>
+</div>
+
 ## curry 的实现
 
 curry 是一个函数包装器，经过 curry 包装的函数，将具备逐个接收参数的能力：
@@ -97,7 +103,7 @@ const ages = persons.map(getAge); // => [18, 24, 33]
 
 ## ES6 curry
 
-借助于 ES6 的 [rest 参数]() 我们能更简短的实现 curry 化方法：
+借助于 ES6 的 [rest 参数](https://babeljs.io/learn-es2015/#ecmascript-2015-features-default-rest-spread) 我们能更简短的实现 curry 化方法：
 
 ```js
 // `arr` 保存了制定的参数，`args` 描述了当前步骤传入的参数
