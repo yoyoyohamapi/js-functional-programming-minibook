@@ -113,7 +113,7 @@ const curry = (f, arr = []) =>
 
 ## 占位符
 
-一般来说，我们进行 curry 化的顺序是按照参数声明顺序从左到右的，但是，有时候我们我们也想先制定后面的参数，这个需求可以通过占位符完成：
+一般来说，我们进行 curry 化的顺序是按照参数声明顺序从左到右的，但是，有时候我们我们也想先指定后面的参数，这个需求可以通过占位符完成：
 
 ```js
 const add = curry((x, y) => x + y);
@@ -128,13 +128,14 @@ const _ = '@@placeholder';
 const curry = (f, arr = []) => {
   return (...args) => {
     let j = 0;
+    const arrCopy = [...arr]
     // 跳过占位符
     for (let i = 0; i < arr.length; i++) {
-       if (arr[i] === _) {
-           arr[i] = args[j++];
+       if (arrCopy[i] === _) {
+           arrCopy[i] = args[j++];
        }
     }
-    const combined = j < args.length ? [...arr, ...args.slice(j)] : [...arr];
+    const combined = j < args.length ? [...arrCopy, ...args.slice(j)] : [...arrCopy];
     const validArgs = combined.filter(arg => arg !== _);
     return validArgs.length >= f.length ? f(...combined) : curry(f, combined);
   };

@@ -4,6 +4,7 @@
 - [函数](function/README.md)
 
   - [lambda 表达式](function/lambda.md)
+  - [纯函数及副作用](function/pure.md)
   - [高阶函数](function/high_order.md)
   - [柯里化](function/curry.md)
   - [偏函数应用](function/partial.md)
