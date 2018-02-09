@@ -103,6 +103,8 @@ mathNotPass(info); // => [1, 4]
 
 相比较于 underscore 的 Pointful 风格，ramda 的 Pointfree 不再需要改造 `map`、`filter` 等 API。往后我们在设计函数时，尽量使用 Pointfree 的风格来应对数据的变动。
 
+> lodash 现在也退出了 pointfree 的 [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide) 分支
+
 ## 参考资料
 
 - [Hey Underscore, You're Doing It Wrong!](https://www.youtube.com/watch?v=m3svKOdZijA)
